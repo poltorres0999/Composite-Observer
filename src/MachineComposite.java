@@ -9,6 +9,16 @@ public class MachineComposite extends MachineComponent{
     }
 
     @Override
+    public void setBroken() {
+
+    }
+
+    @Override
+    public void repair() {
+
+    }
+
+    @Override
     public boolean isBroken() {
         for (MachineComponent mc: components) {
             if (mc.isBroken()) {
