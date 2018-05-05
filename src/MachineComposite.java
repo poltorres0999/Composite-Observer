@@ -31,11 +31,6 @@ public class MachineComposite extends MachineComponent{
 
     @Override
     public boolean isBroken() {
-        for (MachineComponent mc: components) {
-            if (mc.isBroken()) {
-                return true;
-            }
-        }
-        return false;
+        return this.broken && this.trackBrokenComponents.isEmpty();
     }
 }
