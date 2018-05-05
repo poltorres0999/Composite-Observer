@@ -1,31 +1,40 @@
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
 
-public class MachineComposite extends MachineComponent{
-    private List<MachineComponent> components = new ArrayList<>();
-    private List<MachineComponent> trackBrokenComponents = new ArrayList<>();
+public class MachineComposite extends MachineComponent implements Observer {
 
-    public void addComponent(MachineComponent mc) {
+    private final List<MachineComponent> components = new ArrayList<>();
+    private final List<MachineComponent> trackBrokenComponents = new ArrayList<>();
+
+    public void addComponent(final MachineComponent mc) {
+        if(this == mc){
+            throw new RuntimeException("A machine can not be added to it's component List");
+        }
+        mc.addObserver(this);
         this.components.add(mc);
     }
 
     @Override
     public void setBroken() {
-        if (!isBroken()) {
+        if (!this.isBroken()) {
             this.broken = true;
-            notifyObservers();
+            this.setChanged();
+            this.notifyObservers();
         }
     }
 
     @Override
     public void repair() {
-        if (isBroken()) {
-            for (MachineComponent mc: trackBrokenComponents) {
+        if (this.isBroken()) {
+            for (final MachineComponent mc : this.trackBrokenComponents) {
                 mc.repair();
             }
-            trackBrokenComponents.clear();
+            this.trackBrokenComponents.clear();
             this.broken = false;
-            notifyObservers();
+            this.hasChanged();
+            this.notifyObservers();
         }
     }
 
@@ -33,4 +42,20 @@ public class MachineComposite extends MachineComponent{
     public boolean isBroken() {
         return this.broken && this.trackBrokenComponents.isEmpty();
     }
+
+    @Override
+    public void update(Observable observable, Object arg) {
+        final MachineComponent machineComponent=(MachineComponent) observable;
+        if(machineComponent.isBroken()){
+            this.trackBrokenComponents.add(machineComponent);
+            this.setBroken();
+        }
+        else if(!machineComponent.isBroken()){
+            this.trackBrokenComponents.remove(machineComponent);
+            if(this.trackBrokenComponents.isEmpty()){
+                this.broken=false;
+            }
+        }
+    }
+
 }
