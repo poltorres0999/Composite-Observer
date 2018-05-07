@@ -1,3 +1,5 @@
+package machine;
+
 import java.util.Observable;
 
 public abstract class MachineComponent extends Observable {

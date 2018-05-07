@@ -1,3 +1,5 @@
+package machine;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
@@ -14,6 +16,11 @@ public class MachineComposite extends MachineComponent implements Observer {
         }
         mc.addObserver(this);
         this.components.add(mc);
+        if (mc.isBroken()) {
+            this.setBroken();
+            this.trackBrokenComponents.add(mc);
+            this.notifyObservers();
+        }
     }
 
     @Override
@@ -40,7 +47,7 @@ public class MachineComposite extends MachineComponent implements Observer {
 
     @Override
     public boolean isBroken() {
-        return this.broken && this.trackBrokenComponents.isEmpty();
+        return this.broken;
     }
 
     @Override
@@ -58,4 +65,10 @@ public class MachineComposite extends MachineComponent implements Observer {
         }
     }
 
+    public List<MachineComponent> getComponents() {
+        return components;
+    }
+    public List<MachineComponent> getTrackBrokenComponents() {
+        return trackBrokenComponents;
+    }
 }
