@@ -11,15 +11,14 @@ public class MachineComposite extends MachineComponent implements Observer {
     private final List<MachineComponent> trackBrokenComponents = new ArrayList<>();
 
     public void addComponent(final MachineComponent mc) {
-        if(this == mc){
-            throw new RuntimeException("A machine can not be added to it's component List");
-        }
+
         mc.addObserver(this);
+
         this.components.add(mc);
-        if (mc.isBroken()) {
+        if (mc.isBroken() && !this.isBroken()) {
             this.setBroken();
             this.trackBrokenComponents.add(mc);
-            this.notifyObservers();
+            this.notifyChanges();
         }
     }
 
@@ -27,27 +26,22 @@ public class MachineComposite extends MachineComponent implements Observer {
     public void setBroken() {
         if (!this.isBroken()) {
             this.broken = true;
-            this.setChanged();
-            this.notifyObservers();
+            this.notifyChanges();
         }
     }
 
     @Override
     public void repair() {
         if (this.isBroken()) {
-            for (final MachineComponent mc : this.trackBrokenComponents) {
-                mc.repair();
-            }
-            this.trackBrokenComponents.clear();
             this.broken = false;
-            this.hasChanged();
-            this.notifyObservers();
+            this.notifyChanges();
         }
     }
 
     @Override
     public boolean isBroken() {
-        return this.broken;
+        return broken || !this.trackBrokenComponents.isEmpty();
+
     }
 
     @Override
@@ -55,14 +49,22 @@ public class MachineComposite extends MachineComponent implements Observer {
         final MachineComponent machineComponent=(MachineComponent) observable;
         if(machineComponent.isBroken()){
             this.trackBrokenComponents.add(machineComponent);
-            this.setBroken();
-        }
-        else if(!machineComponent.isBroken()){
-            this.trackBrokenComponents.remove(machineComponent);
-            if(this.trackBrokenComponents.isEmpty()){
-                this.broken=false;
+            if (!this.isBroken()) {
+                this.notifyChanges();
             }
         }
+
+        else {
+            this.trackBrokenComponents.remove(machineComponent);
+            if (!this.isBroken()) {
+                this.notifyChanges();
+            }
+        }
+    }
+
+    private void notifyChanges() {
+        setChanged();
+        notifyObservers();
     }
 
     public List<MachineComponent> getComponents() {
