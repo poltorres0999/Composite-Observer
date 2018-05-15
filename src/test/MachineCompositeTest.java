@@ -27,21 +27,84 @@ public class MachineCompositeTest {
     }
 
     @Test
-    public void testAddCorrectComponents() {
+    public void testMachineComposite () {
+
+        assertFalse(machineComposite.isBroken());
+        assertEquals(0, machineComposite.getTrackBrokenComponents().size());
+        assertEquals(0, machineComposite.getComponents().size());
+    }
+
+    @Test
+    public void testAddNoBrokenComponents() {
 
         machineComposite.addComponent(machine);
         machineComposite.addComponent(machine1);
         machineComposite.addComponent(machine2);
         machineComposite.addComponent(machineComposite1);
+
         assertFalse(machineComposite.isBroken());
+
         assertEquals(0, machineComposite.getTrackBrokenComponents().size());
         assertEquals(4, machineComposite.getComponents().size());
+
     }
 
     @Test
-    public void testSetBrokenMachineComposite() {
+    public void testAddBrokenComponents() {
+
+        machineComposite.addComponent(machine);
+        machine.setBroken();
+        machineComposite.addComponent(machine1);
+        machine1.setBroken();
+        machineComposite.addComponent(machine2);
+        machineComposite.addComponent(machineComposite1);
+
+        assertTrue(machineComposite.isBroken());
+
+        assertEquals(2, machineComposite.getTrackBrokenComponents().size());
+        assertEquals(4, machineComposite.getComponents().size());
+
+    }
+
+    @Test
+    public void testSetBrokenInNoBrokenMachineComposite() {
+
         machineComposite.setBroken();
         assertTrue(machineComposite.isBroken());
+
+    }
+
+    @Test
+    public void testSetBrokenInAlreadyBrokenMachine(){
+
+        machineComposite.setBroken();
+        machineComposite.setBroken();
+        assertTrue(machineComposite.isBroken());
+
+    }
+
+    @Test
+    public void testRepairWithNoBrokenComponents() {
+
+        machineComposite.addComponent(machine);
+        machineComposite.addComponent(machineComposite1);
+        machineComposite.setBroken();
+        machineComposite.repair();
+
+        assertFalse(machineComposite.isBroken());
+
+    }
+    @Test
+    public void testRepairWIthBrokenComponents() {
+
+        machineComposite.addComponent(machine);
+        machine.setBroken();
+        machineComposite.addComponent(machineComposite1);
+        machineComposite.setBroken();
+        machineComposite.repair();
+
+        assertTrue(machineComposite.isBroken());
+
     }
 
     @Test
@@ -54,47 +117,24 @@ public class MachineCompositeTest {
         machine.setBroken();
         machineComposite1.setBroken();
 
-        assertTrue(machineComposite.isBroken());
         assertEquals(2, machineComposite.getTrackBrokenComponents().size());
         assertEquals(4, machineComposite.getComponents().size());
     }
 
     @Test
-    public void testAddBrokenComponent() {
+    public void testRepairedComponentAfterUpdate() {
 
-        machine.setBroken();
-        machineComposite1.setBroken();
         machineComposite.addComponent(machine);
-        machineComposite.addComponent(machineComposite1);
         machineComposite.addComponent(machine1);
         machineComposite.addComponent(machine2);
+        machineComposite.addComponent(machineComposite1);
+        machine.setBroken();
+        machineComposite1.setBroken();
+        machine.repair();
+        machineComposite1.repair();
 
-        assertTrue(machineComposite.isBroken());
-        assertEquals(2, machineComposite.getTrackBrokenComponents().size());
+        assertEquals(0, machineComposite.getTrackBrokenComponents().size());
         assertEquals(4, machineComposite.getComponents().size());
     }
 
-    @Test
-    public void testRepairBrokenMachineCompositeWithoutComponents() {
-
-        machineComposite.setBroken();
-        machineComposite.repair();
-        assertFalse(machineComposite.isBroken());
-        assertEquals(0, machineComposite.getTrackBrokenComponents().size());
-        assertEquals(0, machineComposite.getComponents().size());
-    }
-
-    @Test
-    public void testRepairBrokenMachineCompositeWithBrokenComponents() {
-        MachineComposite machineComposite = new MachineComposite();
-        machineComposite.setBroken();
-        Machine machine = new Machine();
-        Machine machine1 = new Machine();
-        machineComposite.addComponent(machine);
-        machineComposite.addComponent(machine1);
-        machineComposite.repair();
-        assertFalse(machineComposite.isBroken());
-        assertEquals(0, machineComposite.getTrackBrokenComponents().size());
-        assertEquals(2, machineComposite.getComponents().size());
-    }
 }
