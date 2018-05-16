@@ -16,7 +16,6 @@ public class MachineComposite extends MachineComponent implements Observer {
 
         this.components.add(mc);
         if (mc.isBroken() && !this.isBroken()) {
-            this.setBroken();
             this.trackBrokenComponents.add(mc);
             this.notifyChanges();
         }
@@ -32,9 +31,11 @@ public class MachineComposite extends MachineComponent implements Observer {
 
     @Override
     public void repair() {
-        if (this.isBroken()) {
+        if (this.isBroken() && this.broken) {
             this.broken = false;
             this.notifyChanges();
+        } else {
+            this.broken = false;
         }
     }
 
